@@ -1,13 +1,6 @@
 {
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "@typescript-eslint",
-    "unused-imports"
-  ],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "plugins": ["@typescript-eslint", "unused-imports"],
   "rules": {
     "no-shadow": "error",
     "unused-imports/no-unused-imports": "error",

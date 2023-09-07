@@ -1,27 +1,24 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node-postgres
 {
-	"name": "Node.js & PostgreSQL",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint"
-			],
-			"settings": {
-				"files.encoding": "utf8",
-				"files.eol": "\n",
-				"editor.formatOnSave": true,
-				"editor.defaultFormatter": "esbenp.prettier-vscode",
-				"editor.codeActionsOnSave": {
-					"source.addMissingImports": true,
-					"source.organizeImports": true,
-					"source.fixAll.eslint": true
-				}
-			}
-		}
-	}
+  "name": "Node.js & PostgreSQL",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "customizations": {
+    "vscode": {
+      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"],
+      "settings": {
+        "files.encoding": "utf8",
+        "files.eol": "\n",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.addMissingImports": true,
+          "source.organizeImports": true,
+          "source.fixAll.eslint": true
+        }
+      }
+    }
+  }
 }
