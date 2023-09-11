@@ -8,6 +8,7 @@ import { handleFollowEvent } from './handlers/followEventHandler';
 import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
 import { wrap } from './libs/asyncWrapper';
+import { prisma } from './libs/prismaClient';
 
 config();
 
@@ -15,6 +16,7 @@ const app = express();
 
 app.listen(process.env.PORT || 3000, () => {
   console.log('Running!');
+  console.log((async () => await prisma.user.findMany())());
 });
 
 app.get('/', (_, res) => {
