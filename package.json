@@ -2,12 +2,11 @@
   "name": "mizuyari-bot-nodejs",
   "version": "1.0.0",
   "scripts": {
-    "build": "tsc --build",
+    "build": "prisma generate && tsc --build",
     "start": "npm run build && node build/app.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "postinstall": "prisma generate"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@line/bot-sdk": "^7.5.2",
