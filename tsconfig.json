@@ -3,13 +3,13 @@
     "target": "es2016",
     "module": "commonjs",
     "outDir": "./build/",
-    "rootDir": "./src",
+    "rootDir": "./src/api",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*"
+    "src/api/**/*"
   ]
 }
