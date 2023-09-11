@@ -43,3 +43,5 @@ app.post(
     res.status(200).end();
   }),
 );
+
+export { app };
