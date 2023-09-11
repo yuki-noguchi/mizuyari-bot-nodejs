@@ -17,7 +17,7 @@ app.listen(process.env.PORT || 3000, () => {
   console.log('Running!');
 });
 
-app.get('/api', (_, res) => {
+app.get('/', (_, res) => {
   return res.status(200).json({
     status: 'success',
     message: 'Connected successfully!',
@@ -25,7 +25,7 @@ app.get('/api', (_, res) => {
 });
 
 app.post(
-  '/api/webhook', //
+  '/webhook', //
   middleware(lineConfig), //
   wrap(async (req, res) => {
     await req.body.events.forEach(async (event: WebhookEvent) => {

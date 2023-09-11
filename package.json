@@ -6,7 +6,8 @@
     "start": "npm run build && node build/app.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@line/bot-sdk": "^7.5.2",
