@@ -7,7 +7,7 @@
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "customizations": {
     "vscode": {
-      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"],
+      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint", "prisma.prisma", "bierner.markdown-mermaid"],
       "settings": {
         "files.encoding": "utf8",
         "files.eol": "\n",
