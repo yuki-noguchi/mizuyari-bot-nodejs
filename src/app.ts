@@ -1,4 +1,5 @@
 import { WebhookEvent, middleware } from '@line/bot-sdk';
+import { config } from 'dotenv';
 import 'dotenv/config';
 import express from 'express';
 import { lineConfig } from './config/config';
@@ -6,10 +7,15 @@ import { isFollowEvent, isPostbackEvent, isTextMessageEvent } from './event.type
 import { handleFollowEvent } from './handlers/followEventHandler';
 import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
+import { wrap } from './libs/asyncWrapper';
+
+config();
 
 const app = express();
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Running!');
+});
 
 app.get('/', (_, res) => {
   return res.status(200).json({
@@ -21,19 +27,19 @@ app.get('/', (_, res) => {
 app.post(
   '/webhook', //
   middleware(lineConfig), //
-  (req, res) => {
-    req.body.events.forEach((event: WebhookEvent) => {
+  wrap(async (req, res) => {
+    await req.body.events.forEach(async (event: WebhookEvent) => {
       if (isTextMessageEvent(event)) {
-        handleTextMessageEvent(event);
+        await handleTextMessageEvent(event);
       }
       if (isFollowEvent(event)) {
-        handleFollowEvent(event);
+        await handleFollowEvent(event);
       }
       if (isPostbackEvent(event)) {
-        handlePostbackEvent(event);
+        await handlePostbackEvent(event);
       }
     });
 
-    res.status(200);
-  },
+    res.status(200).end();
+  }),
 );

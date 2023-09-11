@@ -4,8 +4,8 @@ import { format } from 'date-fns';
 export const listWateringsReply: (watering: {
   plantName: string;
   frequencyInDays: number;
-  nextDate: Date;
-}) => Message = ({ plantName, nextDate, frequencyInDays }) => ({
+  nextDateTime: Date;
+}) => Message = ({ plantName, nextDateTime, frequencyInDays }) => ({
   type: 'flex',
   altText: '水やりリマインダー',
   contents: {
@@ -27,7 +27,7 @@ export const listWateringsReply: (watering: {
         },
         {
           type: 'text',
-          text: `・次は${format(nextDate, 'yyyy年MM月dd日')}`,
+          text: `・次は${format(nextDateTime, 'yyyy年MM月dd日')}`,
         },
       ],
     },

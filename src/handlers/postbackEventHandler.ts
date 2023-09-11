@@ -1,5 +1,6 @@
 import { PostbackEvent } from '@line/bot-sdk';
-import { client } from '../libs/client';
+import { lineClient } from '../libs/lineClient';
+import { prisma } from '../libs/prismaClient';
 import { initialReply } from './replies/initialReply';
 import { listWateringsReply } from './replies/listWateringsReply';
 import { registrationSessionStartReply } from './replies/registrationSessionStartReply';
@@ -15,66 +16,145 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
 
   switch (data.action) {
     case 'registrationSessionStart': {
-      // TODO 処理
-      client.replyMessage(event.replyToken, registrationSessionStartReply());
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          data: {
+            status: 'PROCESSING',
+            waterings: {
+              create: {
+                status: 'WAITING_FOR_PLANT_NAME',
+              },
+            },
+          },
+          where: {
+            id: userId,
+          },
+        });
+      });
+      lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
       break;
     }
     case 'nextDateRegistration': {
-      // TODO 処理
-      await client.replyMessage(event.replyToken, {
+      if (!!event.postback.params && 'date' in event.postback.params) {
+        const nextDate = event.postback.params.date!;
+        await prisma.$transaction(async (tx) => {
+          await tx.watering.updateMany({
+            data: {
+              nextDateTime: new Date(nextDate),
+              status: 'COMPLETED',
+            },
+            where: {
+              userId: userId,
+              status: 'WAITING_FOR_NEXT_DATE',
+            },
+          });
+        });
+      }
+      await lineClient.replyMessage(event.replyToken, {
         type: 'text',
         text: '登録が完了しました。',
       });
-      client.pushMessage(userId!, initialReply());
+      lineClient.pushMessage(userId!, initialReply());
       break;
     }
     case 'cancelRegistrationSession': {
-      // TODO 処理
-      await client.replyMessage(event.replyToken, {
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          data: {
+            status: 'STAND_BY',
+            waterings: {
+              deleteMany: {
+                status: {
+                  in: ['WAITING_FOR_FREQUENCY_IN_DAYS', 'WAITING_FOR_NEXT_DATE', 'WAITING_FOR_PLANT_NAME'],
+                },
+              },
+            },
+          },
+          where: {
+            id: userId,
+          },
+        });
+      });
+
+      await lineClient.replyMessage(event.replyToken, {
         type: 'text',
         text: '登録をキャンセルしました。',
       });
-      client.pushMessage(userId!, initialReply());
+      lineClient.pushMessage(userId!, initialReply());
       break;
     }
     case 'listWaterings': {
-      // TODO 処理
-      const waterings = [
-        {
-          plantName: 'ばら',
-          frequencyInDays: 3,
-          nextDate: new Date(),
+      const waterings = await prisma.watering.findMany({
+        select: {
+          plantName: true,
+          nextDateTime: true,
+          frequencyInDays: true,
         },
-        {
-          plantName: 'サボテン',
-          frequencyInDays: 30,
-          nextDate: new Date(),
+        where: {
+          userId: userId,
         },
-      ];
+      });
 
       if (waterings.length === 0) {
-        client.replyMessage(event.replyToken, initialReply('まだ登録されていません。先に植物を登録をしてください。'));
+        lineClient.replyMessage(
+          event.replyToken,
+          initialReply('まだ登録されていません。先に植物を登録をしてください。'),
+        );
       }
 
-      waterings.forEach((watering) => {
-        client.pushMessage(userId!, listWateringsReply(watering));
-      });
+      waterings
+        .map(({ plantName, nextDateTime, frequencyInDays }) => ({
+          plantName: plantName!,
+          nextDateTime: nextDateTime!,
+          frequencyInDays: frequencyInDays!,
+        }))
+        .forEach((watering) => {
+          lineClient.pushMessage(userId!, listWateringsReply(watering));
+        });
 
       break;
     }
     case 'updateSessionStart': {
-      // TODO 処理
-      client.replyMessage(event.replyToken, registrationSessionStartReply());
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          data: {
+            status: 'PROCESSING',
+            waterings: {
+              updateMany: {
+                data: {
+                  status: 'WAITING_FOR_PLANT_NAME',
+                },
+                where: {
+                  plantName: data.plantName,
+                  status: 'COMPLETED',
+                },
+              },
+            },
+          },
+          where: {
+            id: userId,
+          },
+        });
+      });
+
+      lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
       break;
     }
     case 'deleteWatering': {
-      // TODO 処理
-      client.replyMessage(event.replyToken, {
+      await prisma.$transaction(async (tx) => {
+        await tx.watering.deleteMany({
+          where: {
+            plantName: data.plantName,
+          },
+        });
+      });
+
+      lineClient.replyMessage(event.replyToken, {
         type: 'text',
         text: `${data.plantName}を削除しました。`,
       });
 
-      client.pushMessage(userId!, initialReply());
+      lineClient.pushMessage(userId!, initialReply());
 
       break;
     }

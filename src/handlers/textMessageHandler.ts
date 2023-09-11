@@ -1,53 +1,79 @@
 import { MessageEvent, TextEventMessage } from '@line/bot-sdk';
-import { client } from '../libs/client';
+import { lineClient } from '../libs/lineClient';
+import { prisma } from '../libs/prismaClient';
 import { initialReply } from './replies/initialReply';
 import { nextDateInputReply } from './replies/nextDateInputReply';
 import { wateringRegistrationReply } from './replies/wateringRegistrationReply';
 
-const isWaigingForPlantName = () => {
-  return false;
-};
-
-const isWaigingForFrequencyDays = () => {
-  return true;
-};
-
-export const handleTextMessageEvent = (event: Omit<MessageEvent, 'message'> & { message: TextEventMessage }) => {
+export const handleTextMessageEvent = async (event: Omit<MessageEvent, 'message'> & { message: TextEventMessage }) => {
   const userId = event.source.userId;
 
-  // TODO 処理
-  const user: {
-    userId: string;
-    status: 'STAND_BY' | 'PROCESSING';
-  } = {
-    userId: userId!,
-    status: 'PROCESSING',
-  };
+  const user = await prisma.user.findUniqueOrThrow({
+    include: {
+      waterings: true,
+    },
+    where: {
+      id: userId,
+    },
+  });
 
   switch (user.status) {
     case 'STAND_BY': {
-      client.replyMessage(event.replyToken, initialReply());
+      lineClient.replyMessage(event.replyToken, initialReply());
       break;
     }
     case 'PROCESSING': {
-      // TODO 処理
       // 植物名登録待ちだったら
-      if (isWaigingForPlantName()) {
-        client.replyMessage(event.replyToken, wateringRegistrationReply());
+      if (user.waterings.some((watering) => watering.status === 'WAITING_FOR_PLANT_NAME')) {
+        if (user.waterings.some((watering) => watering.plantName === event.message.text)) {
+          lineClient.replyMessage(event.replyToken, {
+            type: 'text',
+            text: 'すでに登録されている植物名です。別の名前を選択してください。',
+          });
+          return;
+        }
+
+        await prisma.$transaction(async (tx) => {
+          await tx.watering.updateMany({
+            data: {
+              plantName: event.message.text,
+              status: 'WAITING_FOR_FREQUENCY_IN_DAYS',
+            },
+            where: {
+              userId: userId,
+              status: 'WAITING_FOR_PLANT_NAME',
+            },
+          });
+        });
+
+        lineClient.replyMessage(event.replyToken, wateringRegistrationReply());
         return;
       }
       // 頻度待ちだったら
-      if (isWaigingForFrequencyDays()) {
+      if (user.waterings.some((watering) => watering.status === 'WAITING_FOR_FREQUENCY_IN_DAYS')) {
         const frequency = Number.parseInt(event.message.text.trim());
         if (Number.isNaN(frequency)) {
-          client.replyMessage(event.replyToken, {
+          lineClient.replyMessage(event.replyToken, {
             type: 'text',
             text: '半角数字で入力してください。 例: 90',
           });
           return;
         }
 
-        client.replyMessage(event.replyToken, nextDateInputReply());
+        await prisma.$transaction(async (tx) => {
+          await tx.watering.updateMany({
+            data: {
+              frequencyInDays: frequency,
+              status: 'WAITING_FOR_NEXT_DATE',
+            },
+            where: {
+              userId: userId,
+              status: 'WAITING_FOR_FREQUENCY_IN_DAYS',
+            },
+          });
+        });
+
+        lineClient.replyMessage(event.replyToken, nextDateInputReply());
       }
       break;
     }
