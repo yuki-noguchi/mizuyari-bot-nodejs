@@ -27,7 +27,7 @@ export const handleFollowEvent = async (event: FollowEvent) => {
     })
     .catch((e) => console.error(e));
   console.log('3');
-  lineClient
+  await lineClient
     .replyMessage(
       event.replyToken,
       initialReply('フォローありがとうございます。', '以下のメニューから操作を', '開始してください。'),
