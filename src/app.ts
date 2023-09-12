@@ -28,24 +28,18 @@ app.post(
   '/webhook', //
   middleware(lineConfig), //
   wrap(async (req, res) => {
-    console.log('1');
     await req.body.events.forEach(async (event: WebhookEvent) => {
-      console.log('2');
       if (isTextMessageEvent(event)) {
-        console.log('3');
         await handleTextMessageEvent(event);
       }
       if (isFollowEvent(event)) {
-        console.log('4');
         await handleFollowEvent(event);
       }
       if (isPostbackEvent(event)) {
-        console.log('5');
         await handlePostbackEvent(event);
       }
     });
 
-    console.log('6');
     res.status(200).end();
   }),
 );
