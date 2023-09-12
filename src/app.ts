@@ -38,9 +38,9 @@ app.post(
       if (isPostbackEvent(event)) {
         await handlePostbackEvent(event);
       }
+      console.log('1');
     });
 
-    console.log('1');
     res.status(200).end();
   }),
 );
