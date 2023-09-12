@@ -28,6 +28,8 @@ app.post(
   '/webhook', //
   middleware(lineConfig), //
   wrap(async (req, res) => {
+    console.log(process.env);
+
     req.body.events.forEach(async (event: WebhookEvent) => {
       if (isTextMessageEvent(event)) {
         await handleTextMessageEvent(event);
