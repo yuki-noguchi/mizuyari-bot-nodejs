@@ -8,6 +8,7 @@ import { handleFollowEvent } from './handlers/followEventHandler';
 import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
 import { wrap } from './libs/asyncWrapper';
+import { errorHandler } from './libs/errorHandler';
 
 config();
 
@@ -38,9 +39,11 @@ app.post(
       if (isPostbackEvent(event)) {
         await handlePostbackEvent(event);
       }
-      res.status(200).end();
     });
+    res.status(200).end();
   }),
 );
+
+app.use(errorHandler);
 
 export { app };
