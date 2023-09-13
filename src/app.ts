@@ -28,8 +28,8 @@ app.post(
   '/webhook', //
   middleware(lineConfig), //
   (req, res) => {
-    req.body.events
-      .map((event: WebhookEvent) => {
+    (req.body.events as WebhookEvent[])
+      .map((event) => {
         if (isTextMessageEvent(event)) {
           return handleTextMessageEvent(event);
         }
@@ -39,9 +39,12 @@ app.post(
         if (isPostbackEvent(event)) {
           return handlePostbackEvent(event);
         }
+
+        res.status(200).end();
       })
-      .catch(console.error)
-      .finally(() => res.status(200).end());
+      .forEach((promise) => {
+        promise?.catch(console.error).finally(() => res.status(200).end());
+      });
   },
 );
 
