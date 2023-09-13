@@ -30,13 +30,13 @@ app.post(
   (req, res) => {
     (req.body.events as WebhookEvent[]).forEach((event) => {
       if (isTextMessageEvent(event)) {
-        return handleTextMessageEvent(event).then(() => res.status(200).end());
+        handleTextMessageEvent(event).then(() => res.status(200).end());
       }
       if (isFollowEvent(event)) {
-        return handleFollowEvent(event).then(() => res.status(200).end());
+        handleFollowEvent(event).then(() => res.status(200).end());
       }
       if (isPostbackEvent(event)) {
-        return handlePostbackEvent(event).then(() => res.status(200).end());
+        handlePostbackEvent(event).then(() => res.status(200).end());
       }
     });
   },
