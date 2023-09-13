@@ -20,7 +20,7 @@ export const handleFollowEvent = async (event: FollowEvent) => {
       },
     });
   });
-  lineClient.replyMessage(
+  await lineClient.replyMessage(
     event.replyToken,
     initialReply('フォローありがとうございます。', '以下のメニューから操作を', '開始してください。'),
   );

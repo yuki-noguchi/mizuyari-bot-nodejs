@@ -31,7 +31,7 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
           },
         });
       });
-      lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
+      await lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
       break;
     }
     case 'nextDateRegistration': {
@@ -54,7 +54,7 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
         type: 'text',
         text: '登録が完了しました。',
       });
-      lineClient.pushMessage(userId!, initialReply());
+      await lineClient.pushMessage(userId!, initialReply());
       break;
     }
     case 'cancelRegistrationSession': {
@@ -80,7 +80,7 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
         type: 'text',
         text: '登録をキャンセルしました。',
       });
-      lineClient.pushMessage(userId!, initialReply());
+      await lineClient.pushMessage(userId!, initialReply());
       break;
     }
     case 'listWaterings': {
@@ -96,7 +96,7 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
       });
 
       if (waterings.length === 0) {
-        lineClient.replyMessage(
+        await lineClient.replyMessage(
           event.replyToken,
           initialReply('まだ登録されていません。先に植物を登録をしてください。'),
         );
@@ -108,8 +108,8 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
           nextDateTime: nextDateTime!,
           frequencyInDays: frequencyInDays!,
         }))
-        .forEach((watering) => {
-          lineClient.pushMessage(userId!, listWateringsReply(watering));
+        .forEach(async (watering) => {
+          await lineClient.pushMessage(userId!, listWateringsReply(watering));
         });
 
       break;
@@ -137,7 +137,7 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
         });
       });
 
-      lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
+      await lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
       break;
     }
     case 'deleteWatering': {
@@ -149,12 +149,12 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
         });
       });
 
-      lineClient.replyMessage(event.replyToken, {
+      await lineClient.replyMessage(event.replyToken, {
         type: 'text',
         text: `${data.plantName}を削除しました。`,
       });
 
-      lineClient.pushMessage(userId!, initialReply());
+      await lineClient.pushMessage(userId!, initialReply());
 
       break;
     }

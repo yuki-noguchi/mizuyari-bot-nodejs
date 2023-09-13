@@ -19,14 +19,14 @@ export const handleTextMessageEvent = async (event: Omit<MessageEvent, 'message'
 
   switch (user.status) {
     case 'STAND_BY': {
-      lineClient.replyMessage(event.replyToken, initialReply());
+      await lineClient.replyMessage(event.replyToken, initialReply());
       break;
     }
     case 'PROCESSING': {
       // 植物名登録待ちだったら
       if (user.waterings.some((watering) => watering.status === 'WAITING_FOR_PLANT_NAME')) {
         if (user.waterings.some((watering) => watering.plantName === event.message.text)) {
-          lineClient.replyMessage(event.replyToken, {
+          await lineClient.replyMessage(event.replyToken, {
             type: 'text',
             text: 'すでに登録されている植物名です。別の名前を選択してください。',
           });
@@ -46,14 +46,14 @@ export const handleTextMessageEvent = async (event: Omit<MessageEvent, 'message'
           });
         });
 
-        lineClient.replyMessage(event.replyToken, wateringRegistrationReply());
+        await lineClient.replyMessage(event.replyToken, wateringRegistrationReply());
         return;
       }
       // 頻度待ちだったら
       if (user.waterings.some((watering) => watering.status === 'WAITING_FOR_FREQUENCY_IN_DAYS')) {
         const frequency = Number.parseInt(event.message.text.trim());
         if (Number.isNaN(frequency)) {
-          lineClient.replyMessage(event.replyToken, {
+          await lineClient.replyMessage(event.replyToken, {
             type: 'text',
             text: '半角数字で入力してください。 例: 90',
           });
@@ -73,7 +73,7 @@ export const handleTextMessageEvent = async (event: Omit<MessageEvent, 'message'
           });
         });
 
-        lineClient.replyMessage(event.replyToken, nextDateInputReply());
+        await lineClient.replyMessage(event.replyToken, nextDateInputReply());
       }
       break;
     }
