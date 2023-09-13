@@ -28,19 +28,20 @@ app.post(
   '/webhook', //
   middleware(lineConfig), //
   (req, res) => {
-    req.body.events.forEach(async (event: WebhookEvent) => {
-      if (isTextMessageEvent(event)) {
-        await handleTextMessageEvent(event);
-      }
-      if (isFollowEvent(event)) {
-        await handleFollowEvent(event);
-      }
-      if (isPostbackEvent(event)) {
-        await handlePostbackEvent(event);
-      }
-    });
-
-    res.status(200).end();
+    req.body.events
+      .map((event: WebhookEvent) => {
+        if (isTextMessageEvent(event)) {
+          return handleTextMessageEvent(event);
+        }
+        if (isFollowEvent(event)) {
+          return handleFollowEvent(event);
+        }
+        if (isPostbackEvent(event)) {
+          return handlePostbackEvent(event);
+        }
+      })
+      .catch(console.error)
+      .finally(() => res.status(200).end());
   },
 );
 
