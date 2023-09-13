@@ -40,7 +40,8 @@ app.post(
         await handlePostbackEvent(event);
       }
     });
-    res.status(200).end();
+
+    return res.status(200).end();
   }),
 );
 
