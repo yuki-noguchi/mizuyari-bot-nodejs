@@ -9,15 +9,13 @@ import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
 import { wrap } from './libs/asyncWrapper';
 import { errorHandler } from './libs/errorHandler';
-import { prisma } from './libs/prismaClient';
 
 config();
 
 const app = express();
 
-app.listen(process.env.PORT || 3000, async () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('Running!');
-  await prisma.$executeRaw`select * from user`.then(console.log);
 });
 
 app.get('/', (_, res) => {
