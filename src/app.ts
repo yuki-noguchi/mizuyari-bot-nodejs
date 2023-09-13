@@ -39,8 +39,7 @@ app.post(
         if (isPostbackEvent(event)) {
           return handlePostbackEvent(event);
         }
-
-        res.status(200).end();
+        return new Promise(() => {});
       })
       .forEach((promise) => {
         promise?.then(() => res.status(200).end()).catch(console.error);
