@@ -43,7 +43,7 @@ app.post(
         res.status(200).end();
       })
       .forEach((promise) => {
-        promise?.catch(console.error).finally(() => res.status(200).end());
+        promise?.then(() => res.status(200).end()).catch(console.error);
       });
   },
 );
