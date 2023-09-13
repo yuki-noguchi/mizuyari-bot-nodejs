@@ -7,7 +7,6 @@ import { isFollowEvent, isPostbackEvent, isTextMessageEvent } from './event.type
 import { handleFollowEvent } from './handlers/followEventHandler';
 import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
-import { wrap } from './libs/asyncWrapper';
 import { errorHandler } from './libs/errorHandler';
 
 config();
@@ -28,19 +27,19 @@ app.get('/', (_, res) => {
 app.post(
   '/webhook', //
   middleware(lineConfig), //
-  wrap(async (req) => {
-    req.body.events.forEach(async (event: WebhookEvent) => {
+  (req, res) => {
+    req.body.events.forEach((event: WebhookEvent) => {
       if (isTextMessageEvent(event)) {
-        await handleTextMessageEvent(event);
+        handleTextMessageEvent(event).then(() => res.status(200).end);
       }
       if (isFollowEvent(event)) {
-        await handleFollowEvent(event);
+        handleFollowEvent(event).then(() => res.status(200).end);
       }
       if (isPostbackEvent(event)) {
-        await handlePostbackEvent(event);
+        handlePostbackEvent(event).then(() => res.status(200).end);
       }
     });
-  }),
+  },
 );
 
 app.use(errorHandler);
