@@ -28,7 +28,7 @@ app.get('/', (_, res) => {
 app.post(
   '/webhook', //
   middleware(lineConfig), //
-  wrap(async (req, res) => {
+  wrap(async (req) => {
     req.body.events.forEach(async (event: WebhookEvent) => {
       if (isTextMessageEvent(event)) {
         await handleTextMessageEvent(event);
@@ -40,8 +40,6 @@ app.post(
         await handlePostbackEvent(event);
       }
     });
-
-    return res.status(200).end();
   }),
 );
 
