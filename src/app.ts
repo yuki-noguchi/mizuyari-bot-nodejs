@@ -15,9 +15,9 @@ config();
 
 const app = express();
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 3000, async () => {
   console.log('Running!');
-  prisma.$executeRaw`select * from user`.then(console.log);
+  await prisma.$executeRaw`select * from user`.then(console.log);
 });
 
 app.get('/', (_, res) => {
