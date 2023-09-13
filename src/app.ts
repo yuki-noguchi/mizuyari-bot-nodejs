@@ -28,22 +28,17 @@ app.post(
   '/webhook', //
   middleware(lineConfig), //
   (req, res) => {
-    (req.body.events as WebhookEvent[])
-      .map((event) => {
-        if (isTextMessageEvent(event)) {
-          return handleTextMessageEvent(event);
-        }
-        if (isFollowEvent(event)) {
-          return handleFollowEvent(event);
-        }
-        if (isPostbackEvent(event)) {
-          return handlePostbackEvent(event);
-        }
-        return new Promise(() => {});
-      })
-      .forEach((promise) => {
-        promise?.then(() => res.status(200).end()).catch(console.error);
-      });
+    (req.body.events as WebhookEvent[]).forEach((event) => {
+      if (isTextMessageEvent(event)) {
+        return handleTextMessageEvent(event).then(() => res.status(200).end());
+      }
+      if (isFollowEvent(event)) {
+        return handleFollowEvent(event).then(() => res.status(200).end());
+      }
+      if (isPostbackEvent(event)) {
+        return handlePostbackEvent(event).then(() => res.status(200).end());
+      }
+    });
   },
 );
 
