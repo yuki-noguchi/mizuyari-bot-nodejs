@@ -48,6 +48,26 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
               status: 'WAITING_FOR_NEXT_DATE',
             },
           });
+          await tx.user.update({
+            data: {
+              status: 'STAND_BY',
+              waterings: {
+                updateMany: {
+                  data: {
+                    nextDateTime: new Date(nextDate),
+                    status: 'COMPLETED',
+                  },
+                  where: {
+                    userId: userId,
+                    status: 'WAITING_FOR_NEXT_DATE',
+                  },
+                },
+              },
+            },
+            where: {
+              id: userId,
+            },
+          });
         });
       }
       await lineClient.replyMessage(event.replyToken, {

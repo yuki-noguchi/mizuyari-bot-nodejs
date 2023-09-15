@@ -2,8 +2,8 @@
   "name": "mizuyari-bot-nodejs",
   "version": "1.0.0",
   "scripts": {
-    "build": "prisma generate && tsc --build",
-    "start": "npm run build && node build/src/app.js",
+    "build": "tsc --build",
+    "start": "npm run build && node build/app.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."

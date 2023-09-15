@@ -1,4 +1,5 @@
 import { WebhookEvent, middleware } from '@line/bot-sdk';
+import { endOfToday, startOfToday } from 'date-fns';
 import { config } from 'dotenv';
 import 'dotenv/config';
 import express from 'express';
@@ -7,7 +8,10 @@ import { isFollowEvent, isPostbackEvent, isTextMessageEvent } from './event.type
 import { handleFollowEvent } from './handlers/followEventHandler';
 import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
+import { wrap } from './libs/asyncWrapper';
 import { errorHandler } from './libs/errorHandler';
+import { lineClient } from './libs/lineClient';
+import { prisma } from './libs/prismaClient';
 
 config();
 
@@ -27,21 +31,24 @@ app.get('/', (_, res) => {
 app.post(
   '/webhook', //
   middleware(lineConfig), //
-  (req, res) => {
-    (req.body.events as WebhookEvent[]).forEach((event) => {
+  wrap(async (req, res) => {
+    (req.body.events as WebhookEvent[]).forEach(async (event) => {
       if (isTextMessageEvent(event)) {
-        handleTextMessageEvent(event).then(() => res.status(200).end());
+        await handleTextMessageEvent(event);
       }
       if (isFollowEvent(event)) {
-        handleFollowEvent(event).then(() => res.status(200).end());
+        await handleFollowEvent(event);
       }
       if (isPostbackEvent(event)) {
-        handlePostbackEvent(event).then(() => res.status(200).end());
+        await handlePostbackEvent(event);
       }
     });
-  },
+
+    res.status(200).end();
+  }),
 );
 
 app.use(errorHandler);
 
-export { app };
+
+app.use(errorHandler);
