@@ -40,3 +40,4 @@ jobs:
             CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN:latest
             CHANNEL_SECRET=CHANNEL_SECRET:latest
             DATABASE_URL=DATABASE_URL:latest
+          region: asia-northeast1
