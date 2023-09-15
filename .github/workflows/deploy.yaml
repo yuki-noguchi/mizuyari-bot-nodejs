@@ -35,7 +35,7 @@ jobs:
         uses: 'google-github-actions/deploy-cloudrun@v1'
         with:
           image: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_IMAGE }}:${{ github.sha }}
-          service: ${{ sercrets.GCP_CLOUD_RUN_SERVICE }}
+          service: ${{ secrets.GCP_CLOUD_RUN_SERVICE }}
           secrets: |
             CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN:latest
             CHANNEL_SECRET=CHANNEL_SECRET:latest
