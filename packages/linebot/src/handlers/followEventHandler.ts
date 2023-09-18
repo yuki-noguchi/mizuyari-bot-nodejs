@@ -1,6 +1,5 @@
 import { FollowEvent } from '@line/bot-sdk';
-import { lineClient } from '../libs/lineClient';
-import { prisma } from '../libs/prismaClient';
+import { lineClient, prisma } from '@mizuyari-bot-nodejs/common';
 import { initialReply } from './replies/initialReply';
 
 export const handleFollowEvent = async (event: FollowEvent) => {

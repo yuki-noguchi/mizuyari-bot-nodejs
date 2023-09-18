@@ -1,0 +1,14 @@
+{
+  "name": "@mizuyari-bot-nodejs/job",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc --build",
+    "start": "npm run build && node build/app.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@mizuyari-bot-nodejs/common": "^1.0.0"
+  }
+}

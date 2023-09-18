@@ -1,8 +1,11 @@
-name: Build and Deploy to Cloud Run
+name: Build and Deploy linebot to Cloud Run
 on:
   push:
     branches:
       - main
+    paths:
+      - packages/common
+      - packages/linebot
 
 jobs:
   build_and_deploy:

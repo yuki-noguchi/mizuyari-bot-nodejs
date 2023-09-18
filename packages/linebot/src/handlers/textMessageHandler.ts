@@ -1,6 +1,5 @@
 import { MessageEvent, TextEventMessage } from '@line/bot-sdk';
-import { lineClient } from '../libs/lineClient';
-import { prisma } from '../libs/prismaClient';
+import { lineClient, prisma } from '@mizuyari-bot-nodejs/common';
 import { initialReply } from './replies/initialReply';
 import { nextDateInputReply } from './replies/nextDateInputReply';
 import { wateringRegistrationReply } from './replies/wateringRegistrationReply';

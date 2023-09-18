@@ -1,0 +1,18 @@
+{
+  "name": "@mizuyari-bot-nodejs/linebot",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc --build",
+    "start": "npm run build && node build/src/app.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@mizuyari-bot-nodejs/common": "^1.0.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17"
+  }
+}

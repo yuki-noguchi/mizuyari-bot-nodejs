@@ -1,0 +1,15 @@
+.dockerignore
+Dockerfile
+
+.git
+.gitignore
+
+node_modules
+build
+
+.devcontainer
+etc
+eslint*
+prettier*
+README.md
+.env

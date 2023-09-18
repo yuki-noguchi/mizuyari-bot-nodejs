@@ -1,6 +1,5 @@
 import { PostbackEvent } from '@line/bot-sdk';
-import { lineClient } from '../libs/lineClient';
-import { prisma } from '../libs/prismaClient';
+import { lineClient, prisma } from '@mizuyari-bot-nodejs/common';
 import { initialReply } from './replies/initialReply';
 import { listWateringsReply } from './replies/listWateringsReply';
 import { registrationSessionStartReply } from './replies/registrationSessionStartReply';

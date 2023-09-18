@@ -1,19 +1,15 @@
-import { WebhookEvent, middleware } from '@line/bot-sdk';
-import { endOfToday, startOfToday } from 'date-fns';
 import { config } from 'dotenv';
-import 'dotenv/config';
+config();
+// --
+import { WebhookEvent, middleware } from '@line/bot-sdk';
+import { lineConfig } from '@mizuyari-bot-nodejs/common';
 import express from 'express';
-import { lineConfig } from './config/config';
 import { isFollowEvent, isPostbackEvent, isTextMessageEvent } from './event.typeGuards';
 import { handleFollowEvent } from './handlers/followEventHandler';
 import { handlePostbackEvent } from './handlers/postbackEventHandler';
 import { handleTextMessageEvent } from './handlers/textMessageHandler';
 import { wrap } from './libs/asyncWrapper';
 import { errorHandler } from './libs/errorHandler';
-import { lineClient } from './libs/lineClient';
-import { prisma } from './libs/prismaClient';
-
-config();
 
 const app = express();
 
@@ -47,8 +43,5 @@ app.post(
     res.status(200).end();
   }),
 );
-
-app.use(errorHandler);
-
 
 app.use(errorHandler);
