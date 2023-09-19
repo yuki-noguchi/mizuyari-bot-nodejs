@@ -21,8 +21,4 @@ COPY --from=build /opt/app/node_modules node_modules
 COPY --from=build /opt/app/packages/common packages/common
 COPY --from=build /opt/app/packages/notifier packages/notifier
 
-ENV PORT 8080
-
-EXPOSE $PORT
-
 ENTRYPOINT [ "node", "packages/notifier/build/src/index.js" ]
