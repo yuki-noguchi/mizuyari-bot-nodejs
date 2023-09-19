@@ -1,9 +1,9 @@
 {
-  "name": "@mizuyari-bot-nodejs/job",
+  "name": "@mizuyari-bot-nodejs/notifier",
   "version": "1.0.0",
   "scripts": {
     "build": "tsc --build",
-    "start": "npm run build && node build/app.js",
+    "start": "npm run build && node build/src/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."

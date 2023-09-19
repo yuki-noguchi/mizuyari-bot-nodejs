@@ -1,11 +1,11 @@
-name: Build and Deploy linebot to Cloud Run
+name: Build and Deploy notifier to Cloud Run
 on:
   push:
     branches:
       - main
     paths:
       - packages/common/**
-      - packages/linebot/**
+      - packages/notifier/**
 
 jobs:
   build_and_deploy:
@@ -31,17 +31,15 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v4
         with:
-          tags: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_LINEBOT_IMAGE }}:${{ github.sha }}
+          tags: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_NOTIFIER_IMAGE }}:${{ github.sha }}
           push: true
-          file: Dockerfile.linebot
+          file: Dockerfile.notifier
 
       - name: Deploy
         uses: 'google-github-actions/deploy-cloudrun@v1'
-        with:
-          image: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_LINEBOT_IMAGE }}:${{ github.sha }}
-          service: ${{ secrets.GCP_CLOUD_RUN_SERVICE }}
-          secrets: |
-            CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN:latest
-            CHANNEL_SECRET=CHANNEL_SECRET:latest
-            DATABASE_URL=DATABASE_URL:latest
-          region: asia-northeast1
+        run: |
+          gcloud beta run jobs deploy notifier \
+            --image asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_NOTIFIER_IMAGE }}:${{ github.sha }} \
+            --set-secrets CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN:latest \
+            --set-secrets CHANNEL_SECRET=CHANNEL_SECRET:latest \
+            --set-secrets DATABASE_URL=DATABASE_URL:latest
