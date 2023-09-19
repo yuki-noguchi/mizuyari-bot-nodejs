@@ -36,7 +36,6 @@ jobs:
           file: Dockerfile.notifier
 
       - name: Deploy
-        uses: 'google-github-actions/deploy-cloudrun@v1'
         run: |
           gcloud beta run jobs deploy notifier \
             --image asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_NOTIFIER_IMAGE }}:${{ github.sha }} \
