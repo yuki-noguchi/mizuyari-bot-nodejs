@@ -37,8 +37,9 @@ jobs:
 
       - name: Deploy
         run: |
-          gcloud beta run jobs deploy notifier \
+          gcloud run jobs update notifier \
             --image asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPPOSITY }}/${{ secrets.GCP_NOTIFIER_IMAGE }}:${{ github.sha }} \
             --set-secrets CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN:latest \
             --set-secrets CHANNEL_SECRET=CHANNEL_SECRET:latest \
-            --set-secrets DATABASE_URL=DATABASE_URL:latest
+            --set-secrets DATABASE_URL=DATABASE_URL:latest \
+            --region asia-northeast1
