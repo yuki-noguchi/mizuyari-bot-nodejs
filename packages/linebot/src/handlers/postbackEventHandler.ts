@@ -56,7 +56,7 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
       if (waterings.length === 0) {
         await lineClient.replyMessage(
           event.replyToken,
-          initialReply('まだ登録されていません。先に植物を登録をしてください。'),
+          initialReply('まだ登録されていません。', '先に植物を登録をしてください。'),
         );
       }
 
