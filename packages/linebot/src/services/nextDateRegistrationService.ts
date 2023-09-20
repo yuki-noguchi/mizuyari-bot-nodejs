@@ -2,7 +2,7 @@ import { prisma } from '@mizuyari-bot-nodejs/common';
 
 export const registerNextDate = async (nextDate: string, userId: string) => {
   await prisma.$transaction(async (tx) => {
-    tx.user.update({
+    await tx.user.update({
       data: {
         status: 'STAND_BY',
         waterings: {
