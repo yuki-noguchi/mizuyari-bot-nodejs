@@ -1,3 +1,4 @@
+// dotenvの制約で、最初に読み込む必要がある
 import { config } from 'dotenv';
 config();
 // --

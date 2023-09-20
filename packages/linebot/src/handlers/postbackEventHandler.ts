@@ -1,13 +1,14 @@
 import { PostbackEvent } from '@line/bot-sdk';
-import { lineClient, prisma } from '@mizuyari-bot-nodejs/common';
+import { lineClient } from '@mizuyari-bot-nodejs/common';
+import { registerNextDate } from '../services/nextDateRegistrationService';
+import { cancelRegistrationSession } from '../services/registrationSessionCancelSeervice';
+import { startRegistrationSession } from '../services/registrationSessionStartService';
+import { startUpdateSession } from '../services/updateSessionStartService';
+import { deleteWatering } from '../services/wateringDeletionService';
+import { listWatergings } from '../services/wateringsListService';
 import { initialReply } from './replies/initialReply';
 import { listWateringsReply } from './replies/listWateringsReply';
 import { registrationSessionStartReply } from './replies/registrationSessionStartReply';
-
-const parseData = (event: PostbackEvent) => {
-  const datas = event.postback.data.split('&').map((pair) => pair.split('='));
-  return Object.fromEntries(datas) as { [key: string]: string };
-};
 
 export const handlePostbackEvent = async (event: PostbackEvent) => {
   const data = parseData(event);
@@ -15,85 +16,31 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
 
   switch (data.action) {
     case 'registrationSessionStart': {
-      await prisma.$transaction(async (tx) => {
-        await tx.user.update({
-          data: {
-            status: 'PROCESSING',
-            waterings: {
-              create: {
-                status: 'WAITING_FOR_PLANT_NAME',
-              },
-            },
-          },
-          where: {
-            id: userId,
-          },
-        });
-      });
+      // 登録セッションを開始
+      await startRegistrationSession(userId!);
+
       await lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
       break;
     }
     case 'nextDateRegistration': {
-      if (!!event.postback.params && 'date' in event.postback.params) {
-        const nextDate = event.postback.params.date!;
-        await prisma.$transaction(async (tx) => {
-          await tx.watering.updateMany({
-            data: {
-              nextDateTime: new Date(nextDate),
-              status: 'COMPLETED',
-            },
-            where: {
-              userId: userId,
-              status: 'WAITING_FOR_NEXT_DATE',
-            },
-          });
-          await tx.user.update({
-            data: {
-              status: 'STAND_BY',
-              waterings: {
-                updateMany: {
-                  data: {
-                    nextDateTime: new Date(nextDate),
-                    status: 'COMPLETED',
-                  },
-                  where: {
-                    userId: userId,
-                    status: 'WAITING_FOR_NEXT_DATE',
-                  },
-                },
-              },
-            },
-            where: {
-              id: userId,
-            },
-          });
-        });
+      // 日付が存在しないことはありえないが、もし存在しない場合には何もしない
+      if (!(event.postback.params && 'date' in event.postback.params)) {
+        return;
       }
+
+      // 次の水やり日を登録
+      await registerNextDate(event.postback.params.date!, userId!);
+
       await lineClient.replyMessage(event.replyToken, {
         type: 'text',
         text: '登録が完了しました。',
       });
-      await lineClient.pushMessage(userId!, initialReply());
+      await lineClient.pushMessage(event.source.userId!, initialReply());
       break;
     }
     case 'cancelRegistrationSession': {
-      await prisma.$transaction(async (tx) => {
-        await tx.user.update({
-          data: {
-            status: 'STAND_BY',
-            waterings: {
-              deleteMany: {
-                status: {
-                  in: ['WAITING_FOR_FREQUENCY_IN_DAYS', 'WAITING_FOR_NEXT_DATE', 'WAITING_FOR_PLANT_NAME'],
-                },
-              },
-            },
-          },
-          where: {
-            id: userId,
-          },
-        });
-      });
+      // 登録セッションをキャンセルする
+      await cancelRegistrationSession(userId!);
 
       await lineClient.replyMessage(event.replyToken, {
         type: 'text',
@@ -103,16 +50,8 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
       break;
     }
     case 'listWaterings': {
-      const waterings = await prisma.watering.findMany({
-        select: {
-          plantName: true,
-          nextDateTime: true,
-          frequencyInDays: true,
-        },
-        where: {
-          userId: userId,
-        },
-      });
+      // 水やり一覧を取得する
+      const waterings = await listWatergings(userId!);
 
       if (waterings.length === 0) {
         await lineClient.replyMessage(
@@ -134,39 +73,15 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
       break;
     }
     case 'updateSessionStart': {
-      await prisma.$transaction(async (tx) => {
-        await tx.user.update({
-          data: {
-            status: 'PROCESSING',
-            waterings: {
-              updateMany: {
-                data: {
-                  status: 'WAITING_FOR_PLANT_NAME',
-                },
-                where: {
-                  plantName: data.plantName,
-                  status: 'COMPLETED',
-                },
-              },
-            },
-          },
-          where: {
-            id: userId,
-          },
-        });
-      });
+      // 更新セッションを開始する
+      await startUpdateSession(data.plantName, userId!);
 
       await lineClient.replyMessage(event.replyToken, registrationSessionStartReply());
       break;
     }
     case 'deleteWatering': {
-      await prisma.$transaction(async (tx) => {
-        await tx.watering.deleteMany({
-          where: {
-            plantName: data.plantName,
-          },
-        });
-      });
+      // 水やりを削除する
+      await deleteWatering(data.plantName);
 
       await lineClient.replyMessage(event.replyToken, {
         type: 'text',
@@ -174,7 +89,6 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
       });
 
       await lineClient.pushMessage(userId!, initialReply());
-
       break;
     }
     default: {
@@ -182,4 +96,9 @@ export const handlePostbackEvent = async (event: PostbackEvent) => {
       break;
     }
   }
+};
+
+const parseData = (event: PostbackEvent) => {
+  const datas = event.postback.data.split('&').map((pair) => pair.split('='));
+  return Object.fromEntries(datas) as { [key: string]: string };
 };

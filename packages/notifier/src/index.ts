@@ -1,11 +1,13 @@
+// dotenvの制約で最初に読み込む必要がある
 import { config } from 'dotenv';
 config();
-
 // --
-
 import { lineClient, prisma } from '@mizuyari-bot-nodejs/common';
 import { addDays, endOfToday, format, startOfToday } from 'date-fns';
 
+/**
+ * 今日が水やり日の一覧を取得し、テキストメッセージを送信する
+ */
 const main = async () =>
   await prisma.$transaction(async (tx) => {
     const waterings = await tx.watering.findMany({

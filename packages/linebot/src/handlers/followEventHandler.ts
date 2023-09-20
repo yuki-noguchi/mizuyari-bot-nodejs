@@ -1,24 +1,12 @@
 import { FollowEvent } from '@line/bot-sdk';
-import { lineClient, prisma } from '@mizuyari-bot-nodejs/common';
+import { lineClient } from '@mizuyari-bot-nodejs/common';
+import { createUser } from '../services/userCreationService';
 import { initialReply } from './replies/initialReply';
 
+// フォローされたイベントを検知したら、ユーザーを作成もしくは更新し、初期メッセージを返す
 export const handleFollowEvent = async (event: FollowEvent) => {
-  const userId = event.source.userId;
+  await createUser(event.source.userId!);
 
-  await prisma.$transaction(async (tx) => {
-    await tx.user.upsert({
-      create: {
-        id: userId!,
-        status: 'STAND_BY',
-      },
-      update: {
-        status: 'STAND_BY',
-      },
-      where: {
-        id: userId!,
-      },
-    });
-  });
   await lineClient.replyMessage(
     event.replyToken,
     initialReply('フォローありがとうございます。', '以下のメニューから操作を', '開始してください。'),
